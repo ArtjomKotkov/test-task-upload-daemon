@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import os
 import hashlib as hl
 import re
@@ -5,7 +6,7 @@ import mimetypes
 from requests_toolbelt import MultipartDecoder
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-#import daemon
+import daemon
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -61,7 +62,7 @@ class Handler(BaseHTTPRequestHandler):
             return None, None
         for root, dirs, files in os.walk(folder_path):
             for file in files:
-                if re.match(rf'{hash}\..*', file) and file.find('.') or file == hash and not file.find('.'):
+                if re.match(rf'{hash}\..*', file) and 'x' in file or file == hash and not '.' in file:
                     file_path = os.path.join(root, file)
                     return file_path, len(files)
                 return None, None
@@ -116,5 +117,5 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == '__main__':
     server_address = ('', 5000)
     http_server = HTTPServer(server_address, Handler)
-   #with daemon.DaemonContext():
-    http_server.serve_forever()
+    with daemon.DaemonContext():
+        http_server.serve_forever()
