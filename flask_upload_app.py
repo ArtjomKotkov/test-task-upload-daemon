@@ -1,15 +1,12 @@
 import os
 import re
+import hashlib as hl
 
 from flask import Flask, request, Response, send_file
 from flask.views import MethodView
 
-import hashlib as hl
 
 app = Flask(__name__)
-
-
-# python flask_upload_app.py
 
 class UploadApi(MethodView):
     def get(self, hash):
@@ -24,7 +21,6 @@ class UploadApi(MethodView):
                 return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
 
     def post(self, hash=None):
-        print(request.files)
         if not request.files:
             return 'Request body must contains file.', 400
         files_hash = []

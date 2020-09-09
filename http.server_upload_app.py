@@ -1,12 +1,11 @@
-#!/usr/bin/env python
 import os
 import hashlib as hl
 import re
 import mimetypes
-from requests_toolbelt import MultipartDecoder
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
 import daemon
+from requests_toolbelt import MultipartDecoder
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -115,12 +114,14 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._make_reasponse(404, message=f'File {file_hash} not found.')
 
-#python http.server_upoad_app.py
 
 if __name__ == '__main__':
      server_address = ('', 5000)
      http_server = HTTPServer(server_address, Handler) 
-     context = daemon.DaemonContext()
+     context = daemon.DaemonContext(
+         chroot_directory=None,
+         working_directory='/tmp' # Рабочая дерриктория.
+     )
      context.files_preserve = [http_server.fileno()]
     
      with context:
