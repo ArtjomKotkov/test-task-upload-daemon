@@ -6,13 +6,13 @@ from flask.views import MethodView
 
 import hashlib as hl
 
-
 app = Flask(__name__)
+
+
+# python flask_upload_app.py
 
 class UploadApi(MethodView):
     def get(self, hash):
-        if hash == None:
-            return Response(status=400)
         folder_name = hash[:2]
         if not os.path.isdir(f'store/{folder_name}'):
             return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
@@ -23,22 +23,27 @@ class UploadApi(MethodView):
                     return send_file(file_path)
                 return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
 
-
     def post(self, hash=None):
-        if 'file' not in request.files:
-            return 'Request body must contain file.', 400
-        file = request.files['file']
+        print(request.files)
+        if not request.files:
+            return 'Request body must contains file.', 400
+        files_hash = []
+        for file in request.files.values():
 
-        hash_str = hl.md5(file.filename.encode()).hexdigest()
-        filename, file_extension = os.path.splitext(file.filename)
-        new_name = hash_str+file_extension
-        try:
-            os.mkdir(path=f'store/{hash_str[:2]}')
-        except FileExistsError:
-            pass
-        file.save(os.path.join('store', hash_str[:2], new_name))
+            hash_str = hl.md5(file.filename.encode()).hexdigest()
+            filename, file_extension = os.path.splitext(file.filename)
+            new_name = hash_str + file_extension
+            if not os.path.isdir('store'):
+                os.mkdir('store')
+            try:
+                os.mkdir(path=f'store/{hash_str[:2]}')
+            except FileExistsError:
+                pass
+            file.save(os.path.join('store', hash_str[:2], new_name))
+            files_hash.append((file.filename, hash_str))
 
-        return Response(status=201, content_type='text/plain', response=hash_str)
+        return Response(status=201, content_type='text/plain',
+                        response='\n'.join(map(lambda x: str(x), files_hash)) + '\n')
 
     def delete(self, hash):
         folder_name = hash[:2]
@@ -54,5 +59,9 @@ class UploadApi(MethodView):
                     return Response(status=200)
                 return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
 
+
 app.add_url_rule(rule='/<hash>', view_func=UploadApi.as_view(name='upload_api'))
 app.add_url_rule(rule='/', view_func=UploadApi.as_view(name='upload_api_2'))
+
+if __name__ == '__main__':
+    app.run(debug=True)
