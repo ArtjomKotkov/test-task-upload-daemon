@@ -62,7 +62,10 @@ class Handler(BaseHTTPRequestHandler):
             return None, None
         for root, dirs, files in os.walk(folder_path):
             for file in files:
-                if re.match(rf'{hash}\..*', file) and 'x' in file or file == hash and not '.' in file:
+                print(re.match(rf'{hash}\..*', file))
+                print('.' in file)
+                print(file == hash)
+                if re.match(rf'{hash}\..*', file) and '.' in file or file == hash and not '.' in file:
                     file_path = os.path.join(root, file)
                     return file_path, len(files)
                 return None, None
@@ -115,7 +118,10 @@ class Handler(BaseHTTPRequestHandler):
 #python http.server_upoad_app.py
 
 if __name__ == '__main__':
-    server_address = ('', 5000)
-    http_server = HTTPServer(server_address, Handler)
-    with daemon.DaemonContext():
+     server_address = ('', 5000)
+     http_server = HTTPServer(server_address, Handler) 
+     context = daemon.DaemonContext()
+     context.files_preserve = [http_server.fileno()]
+    
+     with context:
         http_server.serve_forever()
