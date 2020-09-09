@@ -18,7 +18,7 @@ class UploadApi(MethodView):
             return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
         for root, dirs, files in os.walk(f'store/{folder_name}'):
             for file in files:
-                if re.search(rf'{hash}.*', file) is not None:
+                if re.match(rf'{hash}\..*', file) and file.find('.') or file == hash and not file.find('.'):
                     file_path = os.path.join(root, file)
                     return send_file(file_path)
                 return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
@@ -51,7 +51,7 @@ class UploadApi(MethodView):
             return Response(status=404, content_type='text/plain', response='File doesn\'t exist')
         for root, dirs, files in os.walk(f'store/{folder_name}'):
             for file in files:
-                if re.match(rf'{hash}\..*', file):
+                if re.match(rf'{hash}\..*', file) and file.find('.') or file == hash and not file.find('.'):
                     file_path = os.path.join(root, file)
                     os.remove(file_path)
                     if len(files) == 1:

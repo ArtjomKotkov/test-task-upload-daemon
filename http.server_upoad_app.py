@@ -5,7 +5,7 @@ import mimetypes
 from requests_toolbelt import MultipartDecoder
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-import daemon
+#import daemon
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -56,12 +56,12 @@ class Handler(BaseHTTPRequestHandler):
 
     def _get_file(self, hash):
         """Return file path with name hash.(ext) or None and count of files in folder."""
-        folder_path = 'store\\' + hash[:2]
+        folder_path = os.path.join('store', hash[:2])
         if not os.path.isdir(folder_path):
             return None, None
         for root, dirs, files in os.walk(folder_path):
             for file in files:
-                if re.match(rf'{hash}\..*', file):
+                if re.match(rf'{hash}\..*', file) and file.find('.') or file == hash and not file.find('.'):
                     file_path = os.path.join(root, file)
                     return file_path, len(files)
                 return None, None
@@ -111,9 +111,10 @@ class Handler(BaseHTTPRequestHandler):
         else:
             self._make_reasponse(404, message=f'File {file_hash} not found.')
 
+#python http.server_upoad_app.py
 
 if __name__ == '__main__':
     server_address = ('', 5000)
     http_server = HTTPServer(server_address, Handler)
-    with daemon.DaemonContext():
-        http_server.serve_forever()
+   #with daemon.DaemonContext():
+    http_server.serve_forever()
