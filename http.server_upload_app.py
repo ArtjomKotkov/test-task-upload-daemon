@@ -61,9 +61,6 @@ class Handler(BaseHTTPRequestHandler):
             return None, None
         for root, dirs, files in os.walk(folder_path):
             for file in files:
-                print(re.match(rf'{hash}\..*', file))
-                print('.' in file)
-                print(file == hash)
                 if re.match(rf'{hash}\..*', file) and '.' in file or file == hash and not '.' in file:
                     file_path = os.path.join(root, file)
                     return file_path, len(files)
